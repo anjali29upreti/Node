@@ -1,0 +1,99 @@
+<html lang="en">
+
+<head>
+
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="http://getbootstrap.com/examples/justified-nav/justified-nav.css" rel="stylesheet">
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+</head>
+
+<body>
+ <svg id="visualisation" width="1300" height="500"></svg>
+  <script>
+  d3.json("IndiaGraphPlot.json",function (data){
+  var vis = d3.select("#visualisation"),
+    WIDTH = 1000,
+    HEIGHT = 500,
+    MARGINS = {
+        top: 20,
+        right: 20,
+        bottom: 20,
+        left: 50
+    },
+
+
+  xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([1960,2013]),
+ yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([0, 50]),
+    xAxis = d3.svg.axis()
+    .scale(xScale),
+    yAxis = d3.svg.axis()
+    .scale(yScale);
+
+    var color = d3.scale.ordinal()
+    .range(["green", "blue"]);
+    color.domain(d3.keys(data[0]).filter(function(key) { return key !== "Year"; }));
+
+    vis.append("svg:g")
+    .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+    .call(xAxis);
+    yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left");
+    vis.append("svg:g")
+    .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+    .call(yAxis);
+    var lineGen = d3.svg.line()
+  .x(function(d) {
+    return xScale(d.Year);
+  })
+  .y(function(d) {
+    return yScale(d.BRate);
+  });
+  vis.append('svg:path')
+  .attr('d', lineGen(data))
+  .attr('stroke', 'green')
+  .attr('stroke-width', 2)
+  .attr('fill', 'none');
+  var lineGen = d3.svg.line()
+.x(function(d) {
+  return xScale(d.Year);
+})
+.y(function(d) {
+  return yScale(d.DRate);
+});
+vis.append('svg:path')
+.attr('d', lineGen(data))
+.attr('stroke', 'blue')
+.attr('stroke-width', 2)
+.attr('fill', 'none');
+
+var legend = vis.selectAll(".legend")
+   .data(color.domain().slice().reverse())
+ .enter().append("g")
+   .attr("class", "legend")
+   .attr("transform", function(d, i) { return "translate(0," + i * 20+ ")"; });
+
+legend.append("rect")
+   .attr("x", WIDTH - 18)
+   .attr("width", 18)
+   .attr("height", 18)
+   .style("fill", color);
+
+legend.append("text")
+   .attr("x", WIDTH - 24)
+   .attr("y", 9)
+   .attr("dy", ".35em")
+   .style("text-anchor", "end")
+   .text(function(d) { return d; });
+
+});
+
+  </script>
+
+
+</body>
+
+</html>
